@@ -1,0 +1,2 @@
+image-name-1.png
+image-name-2.jpeg
