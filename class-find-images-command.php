@@ -55,6 +55,9 @@ class Find_Images_Command {
 
 		fclose( $file_handle );
 
+		$images_found_msg = WP_CLI::colorize("%B" . sprintf('Total images found: %d', count( $result ) ) . "%n");
+		WP_CLI::line($images_found_msg);
+
 		WP_CLI::success( "CSV file generated: $csv_file_path" );
 	}
 
@@ -66,7 +69,20 @@ class Find_Images_Command {
 	 */
 	private function get_posts_with_image( $image_name ) {
 		global $wpdb;
+
+		$media_types = array( 'png', 'jpg', 'jpeg', 'svg', 'gif' );
 		
+		// Remove the file extension from the image name 
+		// as the final image name in the post content may have additional characters or numbers appended to it.
+		foreach ( $media_types as $type ) {
+			if ( preg_match( '/\.' . $type . '$/', $image_name ) ) {
+				$image_name = str_replace( '.' . $type, '', $image_name );
+				break;
+			}
+		}
+
+		WP_CLI::line( " - Searching for image: '$image_name'" );
+
 		$query = $wpdb->prepare(
 			"SELECT p.ID 
 			FROM $wpdb->posts p 
